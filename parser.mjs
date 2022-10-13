@@ -6,12 +6,12 @@ import {JSDOM, VirtualConsole} from "jsdom";
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("error", () => []);
 
-export async function getEvents({cities = [], filters = []} = {}, {concurrency = 5, ...options} = {}) {
+export async function getEvents({cities = [], filters = []} = {}, {concurrency = 5, max = Infinity, ...options} = {}) {
     options.runThread = pLimit(concurrency);
-    const collections = [];
+    const collections = [], context = {max};
     for (const city of cities) {
         for (const filter of filters) {
-            collections.push(getCollection({city, filter}, options))
+            collections.push(getCollection.call(context, {city, filter}, options))
         }
     }
     const events = (await Promise.all(collections)).flat();
@@ -31,8 +31,10 @@ export async function getCollection(query = {}, {
         response = await fetch(url.href).then(r => r.json());
         console.log(query, offset, '—', (offset + limit), `(${response?.data?.length})`)
         if (!Array.isArray(response?.data)) continue;
-        response.data.forEach(item => events.push(runThread(() => getEvent({...item, query}, data))));
-    } while (response?.paging?.total > (offset += limit));
+        response.data.forEach(item => {
+            if (--this.max >= 0) events.push(runThread(() => getEvent({...item, query}, data)));
+        });
+    } while (this.max >= 0 && response?.paging?.total > (offset += limit));
     return events;
 }
 
@@ -51,6 +53,7 @@ export async function getEvent(data = {}, {
         pid: id,
         title: data?.event?.title,
         text: getLD(page)?.description,
+        date: data?.scheduleInfo?.preview?.text,
         category: categories[data?.query?.filter],
         image: data?.event?.image?.sizes?.microdata?.url
     }
