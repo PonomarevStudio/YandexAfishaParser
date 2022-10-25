@@ -6,7 +6,7 @@ import {JSDOM, VirtualConsole} from "jsdom";
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("error", () => []);
 
-export async function getEvents({cities = [], filters = []} = {}, {concurrency = 5, max = Infinity, ...options} = {}) {
+export async function getEvents({cities = [], filters = []} = {}, {concurrency = 1, max = Infinity, ...options} = {}) {
     options.runThread = pLimit(concurrency);
     const collections = [], context = {max};
     for (const city of cities) {
@@ -16,7 +16,15 @@ export async function getEvents({cities = [], filters = []} = {}, {concurrency =
     }
     const events = (await Promise.all(collections)).flat();
     console.log(events.length, 'events collected, parsing data ...');
-    return await Promise.all(events);
+    const unsorted = await Promise.all(events)
+    console.log('sorting by date ...');
+    const dateHandler = options?.data?.dateHandler;
+    return unsorted.sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map(({date, isShortDate, ...event} = {}) => ({
+            ...event,
+            date: dateHandler(date, isShortDate),
+            brand: dateHandler(date, isShortDate)
+        }));
 }
 
 export async function getCollection(query = {}, {
@@ -42,25 +50,49 @@ export async function getEvent(data = {}, {
     request = {},
     categories = {},
     urlHandler = _ => _,
+    imgHandler = _ => _,
     baseUrl = 'https://afisha.yandex.ru'
 } = {}) {
     const id = data?.event?.id,
-        url = new URL(data?.event?.url, baseUrl),
-        page = await fetch(urlHandler(url.href), request).then(r => r.text());
+        url = new URL(data?.event?.url, baseUrl);
+
     console.log(url.href)
+
+    let page = await fetch(urlHandler(url.href), request).then(r => r.text()),
+        document = new JSDOM(page, {virtualConsole}).window.document,
+        state = getState(document),
+        ld = getLD(document);
+
+    if (!ld?.description) {
+        page = await fetch(urlHandler(url.href), request).then(r => r.text());
+        document = new JSDOM(page, {virtualConsole}).window.document;
+        state = getState(document);
+        ld = getLD(document);
+    }
+
     return {
         id,
+        url,
         pid: id,
+        price: 499,
+        text: ld?.description,
         title: data?.event?.title,
-        text: getLD(page)?.description,
-        date: data?.scheduleInfo?.preview?.text,
         category: categories[data?.query?.filter],
-        image: data?.event?.image?.sizes?.microdata?.url
+        isShortDate: !data?.scheduleInfo?.regularity?.singleShowtime,
+        mid: Object.values(state?.events || {})?.[0]?.yaMusic?.id,
+        date: data?.scheduleInfo?.regularity?.singleShowtime || data?.scheduleInfo?.dates[0],
+        image: imgHandler(data?.event?.image?.sizes?.microdata?.url)
     }
 }
 
-export function getLD(html, type = 'Event') {
-    const {document} = new JSDOM(html, {virtualConsole}).window;
+export function getLD(document, type = 'Event') {
     return Array.from(document.querySelectorAll(`script[type="application/ld+json"]`))
         .map(({innerHTML} = {}) => JSON.parse(innerHTML)).flat().find(item => item['@type'] === type);
+}
+
+export function getState(document) {
+    const eventDataScript = document.querySelector(`script.i-redux`);
+    const window = {}
+    eval(eventDataScript?.innerHTML);
+    return window['__initialState'] || {};
 }
