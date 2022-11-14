@@ -58,13 +58,13 @@ export async function getEvent(data = {}, {
 
     console.log(url.href)
 
-    let page = await fetch(urlHandler(url.href), request).then(r => r.text()),
+    let page = await fetch(urlHandler(url.href), request).then(r => r.text()).catch(() => ''),
         document = new JSDOM(page, {virtualConsole}).window.document,
         state = getState(document),
         ld = getLD(document);
 
     if (!ld?.description) {
-        page = await fetch(urlHandler(url.href), request).then(r => r.text());
+        page = await fetch(urlHandler(url.href), request).then(r => r.text()).catch(() => '');
         document = new JSDOM(page, {virtualConsole}).window.document;
         state = getState(document);
         ld = getLD(document);
