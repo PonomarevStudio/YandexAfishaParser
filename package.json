@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "vc-dev": "vc dev",
-    "start": "node index.mjs",
-    "node-vc-env": "node -r dotenv/config index.mjs dotenv_config_path=.vercel/.env.development.local dotenv_config_debug=true"
+    "build": "node src/index.mjs",
+    "node-vc-env": "node -r dotenv/config src/index.mjs dotenv_config_path=.vercel/.env.development.local dotenv_config_debug=true"
   },
   "dependencies": {
     "csv-stringify": "^6.2.0",

@@ -1,8 +1,23 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/api/index.mjs"
+      "source": "/(.*)",
+      "destination": "/events.csv"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/csv; charset=utf-8"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=events.csv"
+        }
+      ]
     }
   ],
   "public": true,

@@ -1,6 +1,6 @@
 import qs from "node:querystring";
 
-export const filename = 'events.csv',
+export const fileURL = new URL('../public/events.csv', import.meta.url),
     apiURL = 'http://api.scraperapi.com',
     query = {
         cities: ['moscow', 'saint-petersburg'],
@@ -15,6 +15,7 @@ export const filename = 'events.csv',
     shortDateTimeFormat = new Intl.DateTimeFormat('ru-RU', {day: 'numeric', month: 'long'}),
     options = {
         apiKeys: JSON.parse(process.env.API_KEYS || '[]'),
+        max: process.env.MAX_EVENTS || Infinity,
         concurrency: 5,
         data: {
             categories: {
