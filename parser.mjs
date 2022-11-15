@@ -3,12 +3,43 @@ import fetch from 'node-fetch';
 import querystring from "node:querystring";
 import {JSDOM, VirtualConsole} from "jsdom";
 
+const keysLimit = {};
+
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("error", () => []);
 
-export async function getEvents({cities = [], filters = []} = {}, {concurrency = 1, max = Infinity, ...options} = {}) {
+export function getAvailableKey(keys = keysLimit) {
+    if (!Object.keys(keys).length) return;
+    const targetKey = Object.entries(keys).sort(([, a], [, b]) => b - a).shift().shift();
+    keysLimit[targetKey]--;
+    return targetKey;
+}
+
+export async function getKeysLimit(apiKeys = [], apiUrl = `http://api.scraperapi.com/account`) {
+    const keys = apiKeys.map(async api_key => {
+        const url = new URL('?' + querystring.stringify({api_key}), apiUrl)
+        const keyData = await fetch(url).then(r => r.json()).catch(() => ({})) || {}
+        const {requestLimit = 0, requestCount = 0, concurrencyLimit = 0} = keyData
+        const availableLimit = requestLimit - requestCount - concurrencyLimit
+        return [api_key, availableLimit]
+    })
+    return Object.fromEntries(await Promise.all(keys))
+}
+
+export async function getEvents(
+    {
+        cities = [],
+        filters = []
+    } = {}, {
+        concurrency = 1,
+        max = Infinity,
+        apiKeys = [],
+        ...options
+    } = {}) {
     options.runThread = pLimit(concurrency);
     const collections = [], context = {max};
+    Object.assign(keysLimit, await getKeysLimit(apiKeys));
+    console.debug('Limit for API keys: ', keysLimit);
     for (const city of cities) {
         for (const filter of filters) {
             collections.push(getCollection.call(context, {city, filter}, options))
@@ -58,13 +89,13 @@ export async function getEvent(data = {}, {
 
     console.log(url.href)
 
-    let page = await fetch(urlHandler(url.href), request).then(r => r.text()).catch(() => ''),
+    let page = await fetch(urlHandler(url.href, getAvailableKey()), request).then(r => r.text()).catch(e => console.error(e) || ''),
         document = new JSDOM(page, {virtualConsole}).window.document,
         state = getState(document),
         ld = getLD(document);
 
     if (!ld?.description) {
-        page = await fetch(urlHandler(url.href), request).then(r => r.text()).catch(() => '');
+        page = await fetch(urlHandler(url.href, getAvailableKey()), request).then(r => r.text()).catch(e => console.error(e) || '');
         document = new JSDOM(page, {virtualConsole}).window.document;
         state = getState(document);
         ld = getLD(document);

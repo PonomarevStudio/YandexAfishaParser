@@ -1,7 +1,9 @@
 {
   "main": "index.mjs",
+  "type": "module",
   "scripts": {
-    "dev": "vc dev",
+    "vc-dev": "vc dev",
+    "start": "node index.mjs",
     "node-vc-env": "node -r dotenv/config index.mjs dotenv_config_path=.vercel/.env.development.local dotenv_config_debug=true"
   },
   "dependencies": {
