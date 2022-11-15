@@ -2,5 +2,11 @@ import {getEvents} from "../parser.mjs";
 import {stringify} from 'csv-stringify/sync';
 import {query, options, csv} from "../config.mjs";
 
-export default async ({}, {send}) =>
-    send(stringify(await getEvents(query, {...options, max: parseInt(process.env.max)}), csv));
+const targetOptions = {...options, max: parseInt(process.env.MAX_EVENTS)}
+
+export default async ({}, res) => {
+    const events = await getEvents(query, targetOptions);
+    res.setHeader('Content-Disposition', 'attachment;filename=events.csv');
+    res.setHeader('Content-Type', 'text/csv');
+    res.send(stringify(events, csv));
+}
