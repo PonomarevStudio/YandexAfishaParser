@@ -26,7 +26,7 @@ export const shortDateTimeFormat = new Intl.DateTimeFormat('ru-RU', {day: 'numer
 
 export const options = {
     apiKeys: JSON.parse(process.env.API_KEYS || '[]'),
-    max: process.env.MAX_EVENTS || Infinity,
+    max: process?.env?.MAX_EVENTS ? parseInt(process.env.MAX_EVENTS) : Infinity,
     concurrency: 5,
     data: {
         categories: {
