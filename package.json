@@ -4,11 +4,14 @@
   "scripts": {
     "vc-dev": "vc dev",
     "build": "node src/index.mjs",
+    "clean": "node src/clean.mjs",
     "images": "node src/images.mjs",
     "convert": "node src/convert.mjs",
+    "extract": "node src/extract.mjs",
     "node-vc-env": "node -r dotenv/config src/index.mjs dotenv_config_path=.vercel/.env.development.local dotenv_config_debug=true"
   },
   "dependencies": {
+    "@squoosh/lib": "^0.4.0",
     "csv-parse": "^5.3.2",
     "csv-stringify": "^6.2.0",
     "jsdom": "^20.0.1",

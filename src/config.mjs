@@ -2,6 +2,8 @@ import qs from "node:querystring";
 
 export const apiURL = 'http://api.scraperapi.com';
 
+export const imagesDir = new URL(`../public/images/`, import.meta.url);
+
 export const fileURL = new URL('../public/events.csv', import.meta.url);
 
 export const imagesURL = `https://the-vox-images.vercel.app`;
@@ -57,3 +59,5 @@ export const csv = {
         mid: 'SKU'
     }
 };
+
+export const allowedMIMEs = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml']
