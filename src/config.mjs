@@ -6,9 +6,9 @@ export const imagesDir = new URL(`../public/images/`, import.meta.url);
 
 export const fileURL = new URL('../public/events.csv', import.meta.url);
 
-export const imagesHost = process.env.VERCEL_URL || `https://the-vox-images.vercel.app`;
+export const imagesHost = process.env.VERCEL_URL || `the-vox-images.vercel.app`;
 
-export const imagesURL = new URL('/images/', imagesHost);
+export const imagesURL = new URL('/images/', `https://${imagesHost}`);
 
 export const defaultImage = 'https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png';
 
@@ -18,10 +18,7 @@ export const query = {
 };
 
 export const dateTimeFormat = new Intl.DateTimeFormat('ru-RU', {
-    minute: 'numeric',
-    hour: 'numeric',
-    day: 'numeric',
-    month: 'long'
+    minute: 'numeric', hour: 'numeric', day: 'numeric', month: 'long'
 });
 
 export const shortDateTimeFormat = new Intl.DateTimeFormat('ru-RU', {day: 'numeric', month: 'long'});
