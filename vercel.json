@@ -1,25 +1,7 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/events.csv"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/csv; charset=utf-8"
-        },
-        {
-          "key": "Content-Disposition",
-          "value": "attachment; filename=events.csv"
-        }
-      ]
-    }
-  ],
+  "buildCommand": "npm run parse-events && npm run download-images && npm run convert-events",
+  "installCommand": "npm install --production",
+  "outputDirectory": "public",
   "public": true,
   "github": {
     "silent": true
