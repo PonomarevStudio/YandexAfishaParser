@@ -2,11 +2,13 @@ import qs from "node:querystring";
 
 export const apiURL = 'http://api.scraperapi.com';
 
+export const apiKeys = `["first_key", "second_key", "n_key"]`;
+
 export const imagesDir = new URL(`../public/images/`, import.meta.url);
 
 export const fileURL = new URL('../public/events.csv', import.meta.url);
 
-export const imagesHost = process.env.VERCEL_URL || `the-vox-images.vercel.app`;
+export const imagesHost = process.env.VERCEL_URL || `yandex-afisha-parser.vercel.app`;
 
 export const imagesURL = new URL('/images/', `https://${imagesHost}`);
 
@@ -24,8 +26,8 @@ export const dateTimeFormat = new Intl.DateTimeFormat('ru-RU', {
 export const shortDateTimeFormat = new Intl.DateTimeFormat('ru-RU', {day: 'numeric', month: 'long'});
 
 export const options = {
-    apiKeys: JSON.parse(process.env.API_KEYS || '[]'),
     max: process?.env?.MAX_EVENTS ? parseInt(process.env.MAX_EVENTS) : Infinity,
+    apiKeys: JSON.parse(process.env.API_KEYS || apiKeys),
     concurrency: 5,
     data: {
         categories: {
