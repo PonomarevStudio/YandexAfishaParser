@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run parse-events && npm run download-images && npm run convert-events",
-  "installCommand": "npm install --production",
+  "installCommand": "npm install --omit=dev",
   "outputDirectory": "public",
   "public": true,
   "github": {

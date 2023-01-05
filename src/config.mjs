@@ -6,7 +6,9 @@ export const imagesDir = new URL(`../public/images/`, import.meta.url);
 
 export const fileURL = new URL('../public/events.csv', import.meta.url);
 
-export const imagesURL = `https://the-vox-images.vercel.app`;
+export const imagesHost = process.env.VERCEL_URL || `https://the-vox-images.vercel.app`;
+
+export const imagesURL = new URL('/images/', imagesHost);
 
 export const defaultImage = 'https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png';
 
