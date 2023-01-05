@@ -2,6 +2,12 @@
   "buildCommand": "npm run parse-events && npm run download-images && npm run convert-events",
   "installCommand": "npm install --omit=dev",
   "outputDirectory": "public",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/events.converted.csv"
+    }
+  ],
   "public": true,
   "github": {
     "silent": true

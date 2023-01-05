@@ -15,7 +15,7 @@ You can choose from one of the following two methods to use this repository:
 
 Run the parser using [Vercel](https://vercel.com):
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPonomareVlad%2FYandexAfishaParser&env=API_KEYS&envDescription=ScraperAPI%20keys%20in%20JSON%20array%20format%3A%20%5B%22first_key%22%2C%20%22second_key%22%2C%20%22n_key%22%5D&envLink=https%3A%2F%2Fwww.scraperapi.com&project-name=yandex-afisha-parser&repository-name=YandexAfishaParser)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPonomareVlad%2FYandexAfishaParser&env=MAX_EVENTS,API_KEYS&envDescription=Events%20limit%20as%20number%20and%20ScraperAPI%20keys%20in%20JSON%20array%20format%3A%20%5B%22first_key%22%2C%20%22second_key%22%2C%20%22n_key%22%5D&envLink=https%3A%2F%2Fwww.scraperapi.com&project-name=yandex-afisha-parser&repository-name=YandexAfishaParser)
 
 ### Clone and Run locally
 
