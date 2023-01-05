@@ -8,6 +8,21 @@
       "destination": "/events.converted.csv"
     }
   ],
+  "headers": [
+    {
+      "source": "/*.csv",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/csv; charset=utf-8"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=events.csv"
+        }
+      ]
+    }
+  ],
   "public": true,
   "github": {
     "silent": true
