@@ -1,0 +1,81 @@
+{
+  "api": {
+    "keys": [],
+    "concurrency": 5,
+    "url": "http://api.scraperapi.com"
+  },
+  "query": {
+    "cities": [
+      "moscow",
+      "saint-petersburg"
+    ],
+    "filters": [
+      "classical_music",
+      "electronic",
+      "jazz-blues",
+      "hiphop",
+      "indie",
+      "metal",
+      "rock",
+      "pop"
+    ]
+  },
+  "images": {
+    "path": "images",
+    "host": "yandex-afisha-parser.vercel.app",
+    "default": "https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png",
+    "allowed": [
+      "image/svg+xml",
+      "image/jpeg",
+      "image/png",
+      "image/gif"
+    ]
+  },
+  "localisation": {
+    "date": {
+      "locale": "ru-RU",
+      "options": {
+        "month": "long",
+        "day": "numeric",
+        "hour": "numeric",
+        "minute": "numeric"
+      },
+      "short": {
+        "options": {
+          "month": "long",
+          "day": "numeric"
+        }
+      }
+    },
+    "filters": {
+      "pop": "Поп",
+      "rock": "Рок",
+      "indie": "Инди",
+      "metal": "Метал",
+      "hiphop": "Хип-хоп и рэп",
+      "jazz-blues": "Джаз и блюз",
+      "electronic": "Электронная музыка",
+      "classical_music": "Классическая музыка"
+    }
+  },
+  "csv": {
+    "header": true,
+    "quoted": true,
+    "delimiter": ";",
+    "columns": {
+      "id": "External ID",
+      "pid": "Parent ID",
+      "title": "Title",
+      "image": "Photo",
+      "category": "Category",
+      "date": "Description",
+      "brand": "Brand",
+      "price": "Price",
+      "text": "Text",
+      "mid": "SKU"
+    }
+  },
+  "filename": "events.csv",
+  "output": "public",
+  "limit": null
+}
