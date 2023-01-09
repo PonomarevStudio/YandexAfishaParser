@@ -94,6 +94,7 @@
   },
   "filename": "events.csv",
   "output": "./public/",
+  "memory": 6000,
   "limit": 5000,
   "log": 2000
 }
