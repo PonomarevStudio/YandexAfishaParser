@@ -52,7 +52,9 @@ export async function initWorkers() {
         const {queue, workers} = stat(),
             log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
         if (lastLog === log) return;
-        console.log(log, 'that use', Math.round(process.memoryUsage.rss() / 1024 / 1024), 'MB of memory');
+        const free = freemem() / 1024 / 1024;
+        const used = Math.round(process.memoryUsage.rss() / 1024 / 1024);
+        console.log(log, `that use ${used} MB of memory (${free} MB free)`);
         lastLog = log;
     }, log);
     await Promise.all(workers.map(({complete} = {}) => complete));
