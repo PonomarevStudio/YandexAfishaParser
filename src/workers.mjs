@@ -4,6 +4,7 @@ import pWhilst from "p-whilst";
 import pLimit from "p-limit";
 import fetch from "node-fetch";
 import config from "./config.mjs";
+import {freemem} from "os";
 
 const {
     api: {
@@ -75,7 +76,10 @@ export class Worker {
     }
 
     checkQueue() {
-        return complete || (queue.length > 0 && this.worker.activeCount < concurrency)
+        const queueLength = queue.length > 0;
+        const memory = freemem() / 1024 / 1024 / 1024 > 1;
+        const activeCount = this.worker.activeCount < concurrency;
+        return complete || (queueLength && activeCount && memory);
     }
 
     checkLimit() {
