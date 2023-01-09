@@ -40,7 +40,6 @@
     },
     "download": true,
     "path": "./images/",
-    "url": "https://yandex-afisha-parser.vercel.app/images/",
     "fallback": "https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png"
   },
   "items": {
