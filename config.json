@@ -2,52 +2,70 @@
   "api": {
     "keys": [],
     "concurrency": 5,
+    "options": {
+      "timeout": 60000,
+      "interval": 1000
+    },
     "url": "http://api.scraperapi.com"
   },
-  "query": {
-    "cities": [
-      "moscow",
-      "saint-petersburg"
-    ],
-    "filters": [
-      "classical_music",
-      "electronic",
-      "jazz-blues",
-      "hiphop",
-      "indie",
-      "metal",
-      "rock",
-      "pop"
-    ]
+  "collections": {
+    "query": {
+      "city": [
+        "moscow",
+        "saint-petersburg"
+      ],
+      "filter": [
+        "classical_music",
+        "electronic",
+        "jazz-blues",
+        "hiphop",
+        "indie",
+        "metal",
+        "rock",
+        "pop"
+      ]
+    },
+    "url": "https://afisha.yandex.ru/api/events/rubric/concert"
   },
   "images": {
-    "path": "images",
-    "host": "yandex-afisha-parser.vercel.app",
-    "default": "https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png",
     "allowed": [
-      "image/svg+xml",
-      "image/jpeg",
       "image/png",
-      "image/gif"
-    ]
+      "image/gif",
+      "image/jpeg",
+      "image/svg+xml"
+    ],
+    "options": {
+      "retries": 2,
+      "minTimeout": 3000
+    },
+    "download": true,
+    "path": "./images/",
+    "url": "https://yandex-afisha-parser.vercel.app/images/",
+    "fallback": "https://static.tildacdn.com/tild6361-3537-4663-b161-326166303863/Group_219.png"
+  },
+  "items": {
+    "options": {
+      "retries": 2,
+      "minTimeout": 3000
+    },
+    "price": 499,
+    "base": "https://afisha.yandex.ru"
+  },
+  "date": {
+    "locales": "ru-RU",
+    "options": {
+      "month": "long",
+      "day": "numeric",
+      "hour": "numeric",
+      "minute": "numeric"
+    },
+    "short": {
+      "month": "long",
+      "day": "numeric"
+    }
   },
   "localisation": {
-    "date": {
-      "locale": "ru-RU",
-      "options": {
-        "month": "long",
-        "day": "numeric",
-        "hour": "numeric",
-        "minute": "numeric"
-      },
-      "short": {
-        "options": {
-          "month": "long",
-          "day": "numeric"
-        }
-      }
-    },
-    "filters": {
+    "filter": {
       "pop": "Поп",
       "rock": "Рок",
       "indie": "Инди",
@@ -76,6 +94,7 @@
     }
   },
   "filename": "events.csv",
-  "output": "public",
-  "limit": null
+  "output": "./public/",
+  "log": 2000,
+  "limit": 20
 }

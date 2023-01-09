@@ -1,42 +1,101 @@
-import {cpus} from 'os';
-import fetch from 'node-fetch';
-import {parse} from 'csv-parse/sync';
-import {ImagePool} from '@squoosh/lib';
-import {writeFileSync, mkdirSync, readFileSync, existsSync} from "node:fs";
-import {fileURL, csv, defaultImage, allowedMIMEs, imagesDir} from "./config.mjs";
+import {writeFile, mkdir, access, constants} from "node:fs/promises";
+import {ImagePool} from "@squoosh/lib";
+import config from "./config.mjs";
+import fetch from "node-fetch";
+import pRetry from "p-retry";
+import {cpus} from "os";
 
-const {delimiter} = csv,
-    options = {delimiter, columns: true, skip_empty_lines: true},
-    events = parse(readFileSync(fileURL), options),
-    imagePool = new ImagePool(cpus().length);
+const {
+    output = import.meta.url,
+    log = 1000,
+    images: {
+        download,
+        fallback,
+        path = "./",
+        allowed = [],
+        options = {},
+        url = "http://localhost/"
+    } = {},
+} = config, queue = [];
 
-mkdirSync(imagesDir, {recursive: true});
+export const local = new URL(path, output);
+export let initialised, interval, lastLog, pool;
 
-for await (const event of events) {
+export async function init() {
+    if (initialised) return initialised;
+    initialised = true;
+    if (download) await mkdir(local, {recursive: true});
+    else return console.info('Image downloading disabled');
+    return pool = new ImagePool(cpus().length);
+}
+
+export function startLog() {
+    interval = setInterval(() => {
+        const log = `${queue.length} images in queue`;
+        if (lastLog === log) return;
+        console.log(log);
+        lastLog = log;
+    }, log);
+}
+
+export function getLocalUrl(id) {
+    return new URL(`./${id}.png`, local);
+}
+
+export function getPublicUrl(id) {
+    return new URL(`./${id}.png`, url);
+}
+
+export function fetchImage(url, id) {
+    if (!url) return fallback;
+    if (!download) return url;
+    const task = saveImage(url, getLocalUrl(id));
+    queue.push(task);
+    task.then(result => (removeFromQueue(task), result));
+    return getPublicUrl(id);
+}
+
+export async function saveImage(url, file) {
+    await init();
     try {
-        const url = event[csv.columns.image];
-        if (url === defaultImage) continue;
-        const file = new URL(`./${event[csv.columns.id]}.png`, imagesDir);
-        if (existsSync(file)) continue;
-        const response = await fetch(url);
-        const buffer = await response.arrayBuffer();
-        const mime = response.headers.get('content-type');
-        const size = response.headers.get("content-length");
-        if (allowedMIMEs.includes(mime) && size <= 3000000)
-            writeFileSync(file, Buffer.from(buffer));
-        else {
-            const image = imagePool.ingestImage(buffer);
-            const {bitmap: {width: decodedWidth}} = await image.decoded;
-            const width = Math.min(decodedWidth, 2048)
-            await image.preprocess({resize: {width: Math.min(width, 2048)}});
-            await image.encode({mozjpeg: {quality: 90}});
-            writeFileSync(file, (await image.encodedWith.mozjpeg).binary);
-            console.log(url, 'converted to JPEG', decodedWidth, width);
-        }
-        console.log(file.href, mime, size);
+        await access(file, constants.F_OK);
     } catch (e) {
-        console.error(e);
+        try {
+            const response = await pRetry(() => fetch(url), options);
+            const buffer = await response.arrayBuffer();
+            const output = checkImage(response) ? Buffer.from(buffer) : await convertImage(buffer);
+            await writeFile(file, output);
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 
-await imagePool.close();
+export async function convertImage(buffer) {
+    if (!pool) return Buffer.from(buffer);
+    const image = pool.ingestImage(buffer);
+    const {bitmap: {width: decodedWidth}} = await image.decoded;
+    const width = Math.min(decodedWidth, 2048)
+    await image.preprocess({resize: {width: Math.min(width, 2048)}});
+    await image.encode({mozjpeg: {quality: 90}});
+    const {binary} = await image.encodedWith.mozjpeg;
+    return binary;
+}
+
+export function checkImage(response) {
+    const mime = response.headers.get('content-type');
+    const size = response.headers.get("content-length");
+    return allowed.includes(mime) && size <= 3000000;
+}
+
+export async function exit() {
+    await Promise.all(queue);
+    clearInterval(interval);
+    return pool?.close?.();
+}
+
+function removeFromQueue(task) {
+    const index = queue.indexOf(task);
+    if (index === -1) return;
+    return queue.splice(index, 1);
+}
