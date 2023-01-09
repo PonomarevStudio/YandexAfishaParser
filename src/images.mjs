@@ -1,9 +1,18 @@
 import {writeFile, mkdir, access, constants} from "node:fs/promises";
 import {ImagePool} from "@squoosh/lib";
 import config from "./config.mjs";
+import {cpus, freemem} from "os";
 import fetch from "node-fetch";
 import pRetry from "p-retry";
-import {cpus} from "os";
+
+const imageThreads = () => Math.round(
+    Math.max(
+        Math.min(
+            freemem() / 1024 / 1024 / 128,
+            cpus().length / 2
+        ), 1
+    )
+);
 
 const {
     output = import.meta.url,
@@ -14,6 +23,7 @@ const {
         path = "./",
         allowed = [],
         options = {},
+        threads = imageThreads(),
         url = "http://localhost/"
     } = {},
 } = config, queue = [];
@@ -26,7 +36,7 @@ export async function init() {
     initialised = true;
     if (download) await mkdir(local, {recursive: true});
     else return console.info('Image downloading disabled');
-    return pool = new ImagePool(cpus().length);
+    return pool = new ImagePool(threads);
 }
 
 export function startLog() {

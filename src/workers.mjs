@@ -51,18 +51,13 @@ export async function initWorkers() {
         const {queue, workers} = stat(),
             log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
         if (lastLog === log) return;
-        console.log(log, getDividedMemory());
+        console.log(log, 'that use', Math.round(process.memoryUsage.rss() / 1024 / 1024), 'MB of memory');
         lastLog = log;
     }, log);
     await Promise.all(workers.map(({complete} = {}) => complete));
     clearInterval(interval);
     if (queue.length) console.warn('API keys limit exceeded, skipped items:', queue.length);
     return queue.map(task => task());
-}
-
-function getDividedMemory(memory = process.memoryUsage()) {
-    return Object.fromEntries(Object.entries(memory).map(([key, value]) =>
-        [key, Math.round(value / 1024 / 1024)]));
 }
 
 export class Worker {
