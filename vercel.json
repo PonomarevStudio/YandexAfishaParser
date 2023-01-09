@@ -1,27 +1,13 @@
 {
-  "buildCommand": "npm run parse-events && npm run download-images && npm run convert-events",
   "installCommand": "npm install --omit=dev",
   "outputDirectory": "public",
   "redirects": [
     {
       "source": "/",
-      "destination": "/events.converted.csv"
+      "destination": "/events.csv"
     }
   ],
   "headers": [
-    {
-      "source": "/events.converted.csv",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/csv; charset=utf-8"
-        },
-        {
-          "key": "Content-Disposition",
-          "value": "attachment; filename=events.converted.csv"
-        }
-      ]
-    },
     {
       "source": "/events.csv",
       "headers": [

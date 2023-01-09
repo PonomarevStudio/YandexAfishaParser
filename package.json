@@ -3,11 +3,7 @@
   "type": "module",
   "scripts": {
     "vc-dev": "vc dev",
-    "parse-events": "node src/index.mjs",
-    "convert-events": "node src/convert.mjs",
-    "download-images": "node src/images.mjs",
-    "clean-bad-images": "node src/clean.mjs",
-    "extract-bad-events": "node src/extract.mjs",
+    "build": "node src/index.mjs",
     "node-vc-env": "node -r dotenv/config src/index.mjs dotenv_config_path=.vercel/.env.development.local dotenv_config_debug=true"
   },
   "dependencies": {
