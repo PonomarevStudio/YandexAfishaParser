@@ -28,12 +28,8 @@
     "url": "https://afisha.yandex.ru/api/events/rubric/concert"
   },
   "images": {
-    "allowed": [
-      "image/png",
-      "image/gif",
-      "image/jpeg",
-      "image/svg+xml"
-    ],
+    "allowed": [],
+    "threads": 1,
     "options": {
       "retries": 2,
       "minTimeout": 3000
