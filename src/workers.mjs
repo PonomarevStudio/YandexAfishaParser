@@ -79,8 +79,8 @@ export class Worker {
 
     checkQueue() {
         const queueLength = queue.length > 0;
-        const memory = freemem() / 1024 / 1024 / 1024 > 1;
         const activeCount = this.worker.activeCount < concurrency;
+        const memory = process.memoryUsage.rss() + (1024 * 1024 * 1024) / freemem() < 1;
         return complete || (queueLength && activeCount && memory);
     }
 

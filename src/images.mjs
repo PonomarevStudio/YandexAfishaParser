@@ -23,7 +23,7 @@ const {
         path = "./",
         allowed = [],
         options = {},
-        threads = imageThreads(),
+        threads = cpus().length,
         url = "http://localhost/"
     } = {},
 } = config, queue = [];
