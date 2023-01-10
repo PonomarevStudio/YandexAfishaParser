@@ -98,8 +98,8 @@ export function getItem(data = {}) {
     const date = data?.scheduleInfo?.regularity?.singleShowtime;
     const mid = Object.values(data?.state?.events || {})?.[0]?.yaMusic?.id;
     const image = fetchImage(data?.event?.image?.sizes?.microdata?.url, id)?.href;
-    const formatter = new Intl.DateTimeFormat(locales, shortDate ? short : long);
-    const targetDate = new Date(shortDate || date || new Date());
+    const formatter = new Intl.DateTimeFormat(locales, date ? long : short);
+    const targetDate = new Date(date || shortDate || new Date());
     const formattedDate = formatter.format(targetDate);
     return {
         brand: formattedDate,
