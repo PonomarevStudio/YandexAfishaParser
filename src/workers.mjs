@@ -2,9 +2,9 @@ import {stringify} from "node:querystring";
 import pWaitFor from "p-wait-for";
 import pWhilst from "p-whilst";
 import pLimit from "p-limit";
+import {freemem} from "os";
 import fetch from "node-fetch";
 import config from "./config.mjs";
-import {freemem} from "os";
 
 const {
     api: {
@@ -13,9 +13,8 @@ const {
         concurrency = 5,
         url = "http://api.scraperapi.com"
     },
-    // memory = Math.round(freemem() / 1024 / 1024),
     limit = Infinity,
-    log = 1000,
+    log = 10000,
 } = config, queue = [];
 let complete, lastLog, limits = {}, workers = [], counter = 0;
 
@@ -49,19 +48,23 @@ export async function initWorkers() {
     limits = await getKeysLimit();
     console.info('Limit for API keys: ');
     workers = [...limits.entries()].map(([key, limit] = []) => new Worker(key, limit));
-    const interval = setInterval(() => {
-        const {queue, workers} = stat(),
-            log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
-        if (lastLog === log) return;
-        const free = Math.round(freemem() / 1024 / 1024);
-        const used = Math.round(process.memoryUsage.rss() / 1024 / 1024);
-        console.log(log, `that use ${used} MB of memory (${free} MB free)`);
-        lastLog = log;
-    }, log);
+    const interval = setInterval(printLog, log);
     await Promise.all(workers.map(({complete} = {}) => complete));
     clearInterval(interval);
     if (queue.length) console.warn('API keys limit exceeded, skipped items:', queue.length);
     return queue.map(task => task());
+}
+
+export function printLog(memory = true) {
+    const {queue, workers} = stat(),
+        log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
+    if (lastLog === log) return;
+    lastLog = log;
+    if (memory) {
+        const free = Math.round(freemem() / 1024 / 1024);
+        const used = Math.round(process.memoryUsage.rss() / 1024 / 1024);
+        console.log(log, `that use ${used} MB of memory (${free} MB free)`);
+    } else console.log(log);
 }
 
 export class Worker {
@@ -81,8 +84,7 @@ export class Worker {
     checkQueue() {
         const queueLength = queue.length > 0;
         const activeCount = this.worker.activeCount < concurrency;
-        // const memorySize = process.memoryUsage.rss() / 1024 / 1024 < memory;
-        return complete || (queueLength && activeCount /*&& memorySize*/);
+        return complete || (queueLength && activeCount);
     }
 
     checkLimit() {

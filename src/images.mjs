@@ -1,11 +1,13 @@
-import {writeFile, mkdir, access, constants} from "node:fs/promises";
+import {readFile, writeFile, mkdir, access, constants} from "node:fs/promises";
 import {ImagePool} from "@squoosh/lib";
 import config from "./config.mjs";
 import fetch from "node-fetch";
 import pRetry from "p-retry";
+import {freemem} from "os";
 
 const {
     output = import.meta.url,
+    log = 10000,
     images: {
         download,
         fallback,
@@ -17,10 +19,10 @@ const {
 } = config;
 
 export const local = new URL(path, output);
-export let initialised, queue = Promise.resolve();
+export let initialised, interval, lastLog, remain = 0, queue = Promise.resolve();
 
 export async function init() {
-    if (initialised) return initialised;
+    if (initialised) return;
     initialised = true;
     if (download) await mkdir(local, {recursive: true});
     else return console.info('Image downloading disabled');
@@ -37,7 +39,7 @@ export function getPublicUrl(id) {
 export function fetchImage(url, id) {
     if (!url) return fallback;
     if (!download) return url;
-    queue = queue.then(() => saveImage(url, getLocalUrl(id)));
+    saveImage(url, getLocalUrl(id));
     return getPublicUrl(id);
 }
 
@@ -49,15 +51,19 @@ export async function saveImage(url, file) {
         try {
             const response = await pRetry(() => fetch(url), options);
             const buffer = await response.arrayBuffer();
-            const output = checkImage(response) ? Buffer.from(buffer) : await convertImage(buffer);
-            await writeFile(file, output);
+            await writeFile(file, Buffer.from(buffer));
+            if (checkImage(response)) return;
+            remain++;
+            queue = queue.then(() => convertImage(file).then(() => remain--));
         } catch (e) {
             console.error(e);
         }
     }
 }
 
-export async function convertImage(buffer) {
+export async function convertImage(file) {
+    console.log('convertImage', 'start', file.href);
+    const buffer = await readFile(file);
     const pool = new ImagePool(1);
     const image = pool.ingestImage(buffer);
     const {bitmap: {width: decodedWidth}} = await image.decoded;
@@ -65,12 +71,38 @@ export async function convertImage(buffer) {
     await image.preprocess({resize: {width: Math.min(width, 2048)}});
     await image.encode({mozjpeg: {quality: 90}});
     const {binary} = await image.encodedWith.mozjpeg;
-    await pool.close();
-    return binary;
+    await Promise.all([
+        writeFile(file, binary),
+        pool.close()
+    ]);
+    console.log('convertImage', 'end', file.href);
 }
 
 export function checkImage(response) {
     const mime = response.headers.get('content-type');
     const size = response.headers.get("content-length");
     return allowed.includes(mime) && size <= 3000000;
+}
+
+export function printLog(memory = true) {
+    const log = `${remain} images in queue for conversion`;
+    if (lastLog === log) return;
+    lastLog = log;
+    if (memory) {
+        const free = Math.round(freemem() / 1024 / 1024);
+        const used = Math.round(process.memoryUsage.rss() / 1024 / 1024);
+        console.log(log, `that use ${used} MB of memory (${free} MB free)`);
+    } else console.log(log);
+}
+
+export function logger(state = true) {
+    if (state && !interval) interval = setInterval(printLog, log);
+    if (!state && interval) {
+        clearInterval(interval);
+        interval = undefined;
+    }
+}
+
+export function getQueue() {
+    return queue;
 }
