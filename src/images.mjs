@@ -82,7 +82,7 @@ export function checkImage(response) {
     return allowed.includes(mime) && size <= 3000000;
 }
 
-export function printLog(memory = true) {
+export function printLog(memory) {
     const log = `${remain} images in queue for conversion`;
     if (lastLog === log) return;
     lastLog = log;

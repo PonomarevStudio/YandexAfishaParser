@@ -55,7 +55,7 @@ export async function initWorkers() {
     return queue.map(task => task());
 }
 
-export function printLog(memory = true) {
+export function printLog(memory) {
     const {queue, workers} = stat(),
         log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
     if (lastLog === log) return;
