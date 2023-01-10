@@ -1,6 +1,7 @@
 import {JSDOM, VirtualConsole} from "jsdom";
 import {stringify} from "node:querystring";
 import {fetchImage} from "./images.mjs";
+import {pushTask} from "./workers.mjs";
 import config from "./config.mjs";
 import fetch from "node-fetch";
 import pRetry from 'p-retry';
@@ -11,6 +12,7 @@ const {
     } = {},
     items: {
         price = 0,
+        retry = 1,
         options = {},
         base = "https://afisha.yandex.ru"
     } = {},
@@ -36,15 +38,18 @@ virtualConsole.on("error", () => []);
 export const sorter = ({date: a} = {}, {date: b} = {}) => a - b;
 
 export async function fetchItem(data = {}, context = {}) {
+    if (!context.retries) context.retries = 0;
+    const {event: {url}} = data;
+    let {key} = context;
+    if (!url || !key) return;
+    const {href} = new URL(url, base);
     try {
-        const {key} = context;
-        const {event: {url}} = data;
-        if (!url || !key) return;
-        const {href} = new URL(url, base);
         const {state, ld} = await pRetry(() => fetchPage(href, key), options);
         return getItem({...data, href, state, ld, context});
     } catch (e) {
-        console.error(e);
+        const retries = ++context.retries;
+        if (retries > retry) return getItem({...data, href, context});
+        return pushTask(context => fetchItem(data, {...context, retries}));
     }
 }
 

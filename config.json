@@ -48,6 +48,7 @@
       "minTimeout": 10000
     },
     "price": 499,
+    "retry": 3,
     "base": "https://afisha.yandex.ru"
   },
   "date": {
