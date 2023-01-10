@@ -4,6 +4,7 @@ import pWhilst from "p-whilst";
 import pLimit from "p-limit";
 import fetch from "node-fetch";
 import config from "./config.mjs";
+import {freemem} from "os";
 
 const {
     api: {
@@ -12,6 +13,7 @@ const {
         concurrency = 5,
         url = "http://api.scraperapi.com"
     },
+    // memory = Math.round(freemem() / 1024 / 1024),
     limit = Infinity,
     log = 1000,
 } = config, queue = [];
@@ -51,7 +53,9 @@ export async function initWorkers() {
         const {queue, workers} = stat(),
             log = `${queue} tasks in queue, and [${workers.join(', ')}] in workers`;
         if (lastLog === log) return;
-        console.log(log);
+        const free = Math.round(freemem() / 1024 / 1024);
+        const used = Math.round(process.memoryUsage.rss() / 1024 / 1024);
+        console.log(log, `that use ${used} MB of memory (${free} MB free)`);
         lastLog = log;
     }, log);
     await Promise.all(workers.map(({complete} = {}) => complete));
@@ -75,7 +79,10 @@ export class Worker {
     }
 
     checkQueue() {
-        return complete || (queue.length > 0 && this.worker.activeCount < concurrency)
+        const queueLength = queue.length > 0;
+        const activeCount = this.worker.activeCount < concurrency;
+        // const memorySize = process.memoryUsage.rss() / 1024 / 1024 < memory;
+        return complete || (queueLength && activeCount /*&& memorySize*/);
     }
 
     checkLimit() {

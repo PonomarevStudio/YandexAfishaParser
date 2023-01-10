@@ -3,7 +3,6 @@ import {fetchCollection, getQueries} from "./collections.mjs";
 import {mkdir, writeFile} from "node:fs/promises";
 import {fetchItem, sorter} from "./items.mjs";
 import {stringify} from "csv-stringify/sync";
-import {exit, startLog} from "./images.mjs";
 import {dirname} from "node:path";
 import config from "./config.mjs";
 
@@ -22,8 +21,8 @@ console.log(tasks.length, 'items collected, parsing their data ...');
 const sortedItems = (await Promise.all(tasks)).filter(Boolean).sort(sorter);
 console.log(sortedItems.length, 'items exporting ...');
 setComplete();
-startLog();
-await workers.then(exit);
+await workers;
+await (await import('./images.mjs')).queue;
 const file = new URL(filename, output);
 await mkdir(dirname(file.pathname), {recursive: true});
 await writeFile(file, stringify(sortedItems, csv));
