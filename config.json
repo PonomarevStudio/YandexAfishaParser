@@ -36,7 +36,7 @@
     ],
     "options": {
       "retries": 2,
-      "minTimeout": 10000
+      "minTimeout": 3000
     },
     "download": true,
     "path": "./images/",
@@ -45,7 +45,7 @@
   "items": {
     "options": {
       "retries": 2,
-      "minTimeout": 10000
+      "minTimeout": 3000
     },
     "price": 499,
     "retry": 3,
