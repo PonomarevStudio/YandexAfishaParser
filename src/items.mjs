@@ -35,7 +35,7 @@ const {
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("error", () => []);
 
-export const sorter = ({date: a} = {}, {date: b} = {}) => a - b;
+export const sorter = ({date: a = 0} = {}, {date: b = 0} = {}) => a - b;
 
 export async function fetchItem(data = {}, context = {}) {
     if (!context.retries) context.retries = 0;
@@ -96,8 +96,8 @@ export function getItem(data = {}) {
     const url = data?.href || data?.event?.url;
     const category = localisation?.filter?.[filter] || filter;
     const shortDate = data?.scheduleInfo?.regularity?.singleShowtime;
-    const image = fetchImage(data?.event?.image?.sizes?.microdata?.url, id)?.href;
     const mid = Object.values(data?.state?.events || {})?.[0]?.yaMusic?.id;
+    const image = fetchImage(data?.event?.image?.sizes?.microdata?.url, id)?.href;
     const formatter = new Intl.DateTimeFormat(locales, shortDate ? short : long);
     const targetDate = new Date(shortDate || date || new Date());
     const formattedDate = formatter.format(targetDate);

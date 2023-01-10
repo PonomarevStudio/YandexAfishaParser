@@ -16,11 +16,11 @@ export function getQueries(data = query) {
 
 export function fetchQuery(url, query) {
     const {href} = new URL('?' + stringify(query), url);
-    return fetch(href).then(r => r.json());
+    return fetch(href).then(r => r.json()).catch(() => ({}));
 }
 
 export async function fetchCollection(query = {}, limit = 20) {
-    const {paging: {total}} = await fetchQuery(url, query);
+    const {paging: {total = 0} = {}} = await fetchQuery(url, query);
     let offset = 0, pages = [];
     do {
         pages.push(fetchCollectionPage(query, limit, offset));

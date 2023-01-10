@@ -18,6 +18,7 @@ const collections = getQueries().map(query => fetchCollection(query));
 console.log(collections.length, 'target collections ...');
 const items = (await Promise.all(collections)).flat();
 const tasks = items.map(item => pushTask(context => fetchItem(item, context)));
+if (!tasks.length) console.warn('No tasks') || process.exit();
 console.log(tasks.length, 'items collected, parsing their data ...');
 const sortedItems = (await Promise.all(tasks)).filter(Boolean).sort(sorter);
 console.log(sortedItems.length, 'items exporting ...');

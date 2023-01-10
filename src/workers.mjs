@@ -46,6 +46,7 @@ export function pushTask(task) {
 
 export async function initWorkers() {
     limits = await getKeysLimit();
+    if (!limits.size) return console.warn('No API keys') || process.exit();
     console.info('Limit for API keys: ');
     workers = [...limits.entries()].map(([key, limit] = []) => new Worker(key, limit));
     const interval = setInterval(printLog, log);
