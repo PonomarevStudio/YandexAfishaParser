@@ -1,7 +1,7 @@
 {
   "api": {
     "keys": [],
-    "concurrency": 1,
+    "concurrency": 5,
     "options": {
       "timeout": 180000,
       "interval": 1000
