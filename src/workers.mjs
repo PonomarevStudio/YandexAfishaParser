@@ -13,7 +13,7 @@ const {
         concurrency = 5,
         url = "http://api.scraperapi.com"
     },
-    memory = Math.round(freemem() / 1024 / 1024),
+    // memory = Math.round(freemem() / 1024 / 1024),
     limit = Infinity,
     log = 1000,
 } = config, queue = [];
@@ -81,8 +81,8 @@ export class Worker {
     checkQueue() {
         const queueLength = queue.length > 0;
         const activeCount = this.worker.activeCount < concurrency;
-        const memorySize = process.memoryUsage.rss() / 1024 / 1024 < memory;
-        return complete || (queueLength && activeCount && memorySize);
+        // const memorySize = process.memoryUsage.rss() / 1024 / 1024 < memory;
+        return complete || (queueLength && activeCount /*&& memorySize*/);
     }
 
     checkLimit() {

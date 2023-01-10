@@ -1,7 +1,7 @@
 {
   "api": {
     "keys": [],
-    "concurrency": 1,
+    "concurrency": 5,
     "options": {
       "timeout": 180000,
       "interval": 1000
@@ -94,7 +94,6 @@
   },
   "filename": "events.csv",
   "output": "./public/",
-  "memory": 3000,
   "limit": 5000,
   "log": 2000
 }
