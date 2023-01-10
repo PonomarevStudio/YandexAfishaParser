@@ -50,12 +50,19 @@ export async function fetchItem(data = {}, context = {}) {
 
 export async function fetchPage(url, api_key) {
     const {href} = new URL('?' + stringify({api_key, url}), apiURL);
-    const page = await fetch(href).then(r => r.text());
-    const {document} = new JSDOM(page, {virtualConsole})?.window;
-    const state = getState(document);
-    const ld = getLD(document);
-    if (!ld?.["@type"]) throw Object.assign(new Error('Empty data'), {message: url});
-    return {state, ld};
+    const response = await fetch(href);
+    switch (response.status) {
+        case 200:
+            const page = await response.text();
+            const {document} = new JSDOM(page, {virtualConsole})?.window;
+            const state = getState(document);
+            const ld = getLD(document);
+            return {state, ld};
+        case 404:
+            return {};
+        default:
+            throw Object.assign(new Error('API error'), {message: await response.text()});
+    }
 }
 
 export function getLD(document, type = 'Event') {
