@@ -62,7 +62,6 @@ export async function saveImage(url, file) {
 }
 
 export async function convertImage(file) {
-    console.log('convertImage', 'start', file.href);
     const buffer = await readFile(file);
     const pool = new ImagePool(1);
     const image = pool.ingestImage(buffer);
@@ -75,7 +74,6 @@ export async function convertImage(file) {
         writeFile(file, binary),
         pool.close()
     ]);
-    console.log('convertImage', 'end', file.href);
 }
 
 export function checkImage(response) {
