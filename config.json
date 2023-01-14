@@ -95,7 +95,6 @@
   },
   "filename": "events.csv",
   "output": "./public/",
-  "timeout": 252000,
   "limit": 5000,
   "log": 10000
 }

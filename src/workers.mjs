@@ -40,12 +40,14 @@ export async function getKeysLimit(apiKeys = keys, apiUrl = url) {
 export function pushTask(task) {
     return new Promise((resolve, reject) => {
         if (++counter > limit) return resolve();
-        return queue.push((...args) => task(...args).then(resolve).catch(reject));
+        queue.push((...args) => task(...args).then(resolve).catch(reject));
     })
 }
 
 export function increaseLimit(apiKey, amount = 1) {
     const worker = workers.find(({key} = {}) => key === apiKey);
+    counter -= amount;
+    if (!worker) return;
     worker.limit += amount;
     if (!worker.state) worker.start();
 }
@@ -57,9 +59,9 @@ export async function initWorkers() {
     workers = [...limits.entries()].map(([key, limit] = []) => new Worker(key, limit));
     const interval = setInterval(printLog, log);
     await Promise.all(workers.map(({complete} = {}) => complete));
+    if (queue.length) console.warn(queue.length, 'items skipped');
+    queue.map(task => task());
     clearInterval(interval);
-    if (queue.length) console.warn('API keys limit exceeded, skipped items:', queue.length);
-    return queue.map(task => task());
 }
 
 export function printLog(memory) {
@@ -90,9 +92,9 @@ export class Worker {
             .catch(e => e).finally(this.end.bind(this));
     }
 
-    async end() {
-        await pWaitFor(() => this.worker.activeCount < 1);
+    end() {
         this.state = false;
+        return pWaitFor(() => this.worker.activeCount < 1).catch(e => e);
     }
 
     async tick() {

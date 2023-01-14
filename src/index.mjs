@@ -1,7 +1,6 @@
 import {initWorkers, pushTask, setComplete} from "./workers.mjs";
 import {fetchCollection, getQueries} from "./collections.mjs";
 import {mkdir, writeFile} from "node:fs/promises";
-import {scheduler} from 'node:timers/promises';
 import {fetchItem, sorter} from "./items.mjs";
 import {getQueue, logger} from "./images.mjs";
 import {stringify} from "csv-stringify/sync";
@@ -9,15 +8,18 @@ import {dirname} from "node:path";
 import config from "./config.mjs";
 
 const {
+    timeout,
     csv = {},
-    timeout = 3600000,
     filename = 'items.csv',
     output = import.meta.url
 } = config;
 
+if (timeout) setTimeout(() => {
+    console.warn('Time limit exceeded !');
+    setComplete();
+}, timeout);
+
 const workers = initWorkers();
-scheduler.wait(timeout).then(() =>
-    console.warn('Time limit exceeded !') || setComplete());
 const collections = getQueries().map(query => fetchCollection(query));
 console.log(collections.length, 'target collections ...');
 const items = (await Promise.all(collections)).flat();
