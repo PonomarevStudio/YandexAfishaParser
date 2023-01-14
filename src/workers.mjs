@@ -90,7 +90,8 @@ export class Worker {
             .catch(e => e).finally(this.end.bind(this));
     }
 
-    end() {
+    async end() {
+        await pWaitFor(() => this.worker.activeCount < 1);
         this.state = false;
     }
 

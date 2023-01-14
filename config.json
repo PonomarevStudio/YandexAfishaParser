@@ -48,7 +48,7 @@
       "minTimeout": 3000
     },
     "price": 499,
-    "retry": 3,
+    "retry": 2,
     "base": "https://afisha.yandex.ru"
   },
   "date": {
@@ -95,6 +95,7 @@
   },
   "filename": "events.csv",
   "output": "./public/",
+  "timeout": 252000,
   "limit": 5000,
   "log": 10000
 }
