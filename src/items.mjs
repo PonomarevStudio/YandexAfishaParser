@@ -35,7 +35,7 @@ const {
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("error", () => []);
 
-export const sorter = ({date: a = 0} = {}, {date: b = 0} = {}) => a - b;
+export const sorter = ({targetDate: a = 0} = {}, {targetDate: b = 0} = {}) => a - b;
 
 export async function fetchItem(data = {}, context = {}) {
     if (!context.retries) context.retries = 0;
