@@ -1,7 +1,7 @@
+import {increaseLimit, pushTask} from "./workers.mjs";
 import {JSDOM, VirtualConsole} from "jsdom";
 import {stringify} from "node:querystring";
 import {fetchImage} from "./images.mjs";
-import {pushTask} from "./workers.mjs";
 import config from "./config.mjs";
 import fetch from "node-fetch";
 import pRetry from 'p-retry';
@@ -66,6 +66,7 @@ export async function fetchPage(url, api_key) {
         case 404:
             return {};
         default:
+            increaseLimit(api_key);
             throw Object.assign(new Error('API error'), {message: await response.text()});
     }
 }

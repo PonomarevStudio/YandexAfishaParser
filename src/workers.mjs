@@ -44,6 +44,12 @@ export function pushTask(task) {
     })
 }
 
+export function increaseLimit(apiKey, amount = 1) {
+    const worker = workers.find(({key} = {}) => key === apiKey);
+    worker.limit += amount;
+    if (!worker.state) worker.start();
+}
+
 export async function initWorkers() {
     limits = await getKeysLimit();
     if (!limits.size) return console.warn('No API keys') || process.exit();
@@ -74,7 +80,18 @@ export class Worker {
         console.info(key, limit);
         const worker = pLimit(concurrency);
         Object.assign(this, {key, limit, worker});
-        this.complete = pWhilst(this.checkLimit.bind(this), this.tick.bind(this)).catch(e => e);
+        this.state = false;
+        this.start();
+    }
+
+    start() {
+        this.state = true;
+        return this.complete = pWhilst(this.checkLimit.bind(this), this.tick.bind(this))
+            .catch(e => e).finally(this.end.bind(this));
+    }
+
+    end() {
+        this.state = false;
     }
 
     async tick() {

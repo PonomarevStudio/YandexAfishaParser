@@ -35,7 +35,7 @@
       "image/svg+xml"
     ],
     "options": {
-      "retries": 2,
+      "retries": 1,
       "minTimeout": 3000
     },
     "download": true,
@@ -44,7 +44,7 @@
   },
   "items": {
     "options": {
-      "retries": 2,
+      "retries": 1,
       "minTimeout": 3000
     },
     "price": 499,
