@@ -14,7 +14,9 @@ const {
     output = import.meta.url
 } = config;
 
-if (timeout) setTimeout(() => {
+let completeTimeout;
+
+if (timeout) completeTimeout = setTimeout(() => {
     console.warn('Time limit exceeded !');
     setComplete();
 }, timeout);
@@ -28,6 +30,7 @@ if (!tasks.length) console.warn('No tasks') || process.exit();
 console.log(tasks.length, 'items collected, parsing their data ...');
 const sortedItems = (await Promise.all(tasks)).filter(Boolean).sort(sorter);
 console.log(sortedItems.length, 'items exporting ...');
+if (completeTimeout) clearTimeout(completeTimeout);
 setComplete();
 await workers;
 console.log('saving images ...');
