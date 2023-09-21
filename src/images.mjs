@@ -73,7 +73,7 @@ export async function convertImage(file) {
         const {binary} = await image.encodedWith.mozjpeg;
         await writeFile(file, binary);
     } catch (e) {
-        console.error(e);
+        console.error(file, "⚠️", e);
     } finally {
         await pool.close();
     }
