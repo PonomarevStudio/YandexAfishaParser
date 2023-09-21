@@ -62,18 +62,21 @@ export async function saveImage(url, file) {
 }
 
 export async function convertImage(file) {
-    const buffer = await readFile(file);
     const pool = new ImagePool(1);
-    const image = pool.ingestImage(buffer);
-    const {bitmap: {width: decodedWidth}} = await image.decoded;
-    const width = Math.min(decodedWidth, 2048)
-    await image.preprocess({resize: {width: Math.min(width, 2048)}});
-    await image.encode({mozjpeg: {quality: 90}});
-    const {binary} = await image.encodedWith.mozjpeg;
-    await Promise.all([
-        writeFile(file, binary),
-        pool.close()
-    ]);
+    try {
+        const buffer = await readFile(file);
+        const image = pool.ingestImage(buffer);
+        const {bitmap: {width: decodedWidth}} = await image.decoded;
+        const width = Math.min(decodedWidth, 2048)
+        await image.preprocess({resize: {width: Math.min(width, 2048)}});
+        await image.encode({mozjpeg: {quality: 90}});
+        const {binary} = await image.encodedWith.mozjpeg;
+        await writeFile(file, binary);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await pool.close();
+    }
 }
 
 export function checkImage(response) {
